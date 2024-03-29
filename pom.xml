@@ -3,36 +3,21 @@
 
     <modelVersion>4.0.0</modelVersion>
 
-    <groupId>com.mediarithmics</groupId>
+    <groupId>io.arenadata</groupId>
     <artifactId>liquibase-clickhouse</artifactId>
     <version>0.7.4-arenadata-SNAPSHOT</version>
     <packaging>jar</packaging>
-    <inceptionYear>2020</inceptionYear>
 
     <name>Liquibase extension for ClickHouse</name>
-    <description>A Liquibase extension for the ClickHouse database. Fork from https://github.com/mediarithmics/liquibase-clickhouse</description>
+    <description>A Liquibase extension for the ClickHouse database</description>
     <url>https://github.com/arenadata/liquibase-clickhouse</url>
-
-    <organization>
-        <name>Mediarithmics</name>
-        <url>https://www.mediarithmics.com</url>
-    </organization>
 
     <developers>
         <developer>
-            <id>pdalpra@mediarithmics.com</id>
-            <name>Pierre Dal-Pra</name>
-            <organization>Mediarithmics</organization>
-        </developer>
-        <developer>
-            <id>skireev@mediarithmics.com</id>
-            <name>Sergei Kireev</name>
-            <organization>mediarithmics</organization>
-        </developer>
-        <developer>
-            <id>iepimakhov@mediarithmics.com</id>
-            <name>Igor Epimakhov</name>
-            <organization>mediarithmics</organization>
+            <name>Denis Sinkov</name>
+            <email>d.sinkov@arenadata.io</email>
+            <organization>Arenadata</organization>
+            <organizationUrl>https://arenadata.tech/en/</organizationUrl>
         </developer>
     </developers>
 
@@ -50,35 +35,95 @@
         </license>
     </licenses>
 
-    <distributionManagement>
-        <snapshotRepository>
-            <id>maven-arenadata-snapshot</id>
-            <name>Arenadata artifactory snapshots</name>
-            <url>https://rt.adsw.io/artifactory/maven-arenadata-snapshot</url>
-        </snapshotRepository>
-        <repository>
-            <id>maven-arenadata-release</id>
-            <name>Arenadata artifactory releases</name>
-            <url>https://rt.adsw.io/artifactory/maven-arenadata-release</url>
-        </repository>
-    </distributionManagement>
+    <profiles>
+        <profile>
+            <id>public-release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <snapshotRepository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/content/repositories/snapshots</url>
+                </snapshotRepository>
+                <repository>
+                    <id>ossrh</id>
+                    <url>https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/</url>
+                </repository>
+            </distributionManagement>
+            <build>
+                <plugins>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-source-plugin</artifactId>
+                        <version>3.2.1</version>
+                        <executions>
+                            <execution>
+                                <id>attach-sources</id>
+                                <goals>
+                                    <goal>jar-no-fork</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-javadoc-plugin</artifactId>
+                        <version>3.2.0</version>
+                        <executions>
+                            <execution>
+                                <id>attach-javadocs</id>
+                                <goals>
+                                    <goal>jar</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.apache.maven.plugins</groupId>
+                        <artifactId>maven-gpg-plugin</artifactId>
+                        <version>1.6</version>
+                        <executions>
+                            <execution>
+                                <id>sign-artifacts</id>
+                                <phase>verify</phase>
+                                <goals>
+                                    <goal>sign</goal>
+                                </goals>
+                                <configuration>
+                                    <keyname>${gpg.keyname}</keyname>
+                                    <passphraseServerId>${gpg.keyname}</passphraseServerId>
+                                </configuration>
+                            </execution>
+                        </executions>
+                    </plugin>
+                    <plugin>
+                        <groupId>org.sonatype.plugins</groupId>
+                        <artifactId>nexus-staging-maven-plugin</artifactId>
+                        <version>1.6.8</version>
+                        <extensions>true</extensions>
+                        <configuration>
+                            <serverId>ossrh</serverId>
+                            <nexusUrl>https://s01.oss.sonatype.org/</nexusUrl>
+                            <autoReleaseAfterClose>false</autoReleaseAfterClose>
+                        </configuration>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+    </profiles>
 
     <properties>
         <encoding>UTF-8</encoding>
         <project.build.sourceEncoding>${encoding}</project.build.sourceEncoding>
-        <maven.compiler.source>1.8</maven.compiler.source>
-        <maven.compiler.target>1.8</maven.compiler.target>
-        <maven.compiler.plugin.version>3.8.1</maven.compiler.plugin.version>
-        <maven.jar.plugin.version>3.1.2</maven.jar.plugin.version>
         <clickhouse-jdbc.version>0.5.0</clickhouse-jdbc.version>
         <liquibase.version>4.15.0</liquibase.version>
         <junit.version>5.4.0</junit.version>
         <test-containers.version>1.17.3</test-containers.version>
-        <fmt-maven-plugin.version>2.19</fmt-maven-plugin.version>
-        <maven-gpg-plugin.version>1.6</maven-gpg-plugin.version>
         <snakeyaml.version>2.0</snakeyaml.version>
         <typesafe-config.version>1.4.2</typesafe-config.version>
         <lz4.version>1.8.0</lz4.version>
+        <apache.httpclient5.version>5.2.1</apache.httpclient5.version>
     </properties>
 
     <dependencies>
@@ -126,25 +171,22 @@
             <artifactId>lz4-java</artifactId>
             <version>${lz4.version}</version>
         </dependency>
+        <dependency>
+            <groupId>org.apache.httpcomponents.client5</groupId>
+            <artifactId>httpclient5</artifactId>
+            <version>${apache.httpclient5.version}</version>
+        </dependency>
     </dependencies>
 
     <build>
-        <plugins>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-jar-plugin</artifactId>
-                <version>${maven.jar.plugin.version}</version>
-            </plugin>
-            <plugin>
-                <groupId>org.apache.maven.plugins</groupId>
-                <artifactId>maven-compiler-plugin</artifactId>
-                <version>${maven.compiler.plugin.version}</version>
-                <configuration>
-                    <source>${maven.compiler.source}</source>
-                    <target>${maven.compiler.target}</target>
-                </configuration>
-            </plugin>
-        </plugins>
+        <pluginManagement>
+            <plugins>
+                <plugin>
+                    <groupId>org.apache.maven.plugins</groupId>
+                    <artifactId>maven-surefire-plugin</artifactId>
+                </plugin>
+            </plugins>
+        </pluginManagement>
     </build>
 
 </project>
