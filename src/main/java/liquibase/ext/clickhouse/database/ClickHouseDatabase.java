@@ -19,13 +19,15 @@
  */
 package liquibase.ext.clickhouse.database;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-
 import com.clickhouse.jdbc.ClickHouseDriver;
 import liquibase.database.AbstractJdbcDatabase;
 import liquibase.database.DatabaseConnection;
 import liquibase.exception.DatabaseException;
+import liquibase.statement.SqlStatement;
+import liquibase.statement.core.RawSqlStatement;
+
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
 public class ClickHouseDatabase extends AbstractJdbcDatabase {
 
@@ -88,12 +90,12 @@ public class ClickHouseDatabase extends AbstractJdbcDatabase {
   }
 
   @Override
-  public boolean supportsSchemas() {
+  public boolean supportsDDLInTransaction() {
     return false;
   }
 
   @Override
-  public boolean supportsDDLInTransaction() {
-    return false;
+  protected SqlStatement getConnectionSchemaNameCallStatement() {
+    return new RawSqlStatement("SELECT currentDatabase()");
   }
 }
