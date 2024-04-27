@@ -130,6 +130,24 @@
                 </plugins>
             </build>
         </profile>
+        <profile>
+            <id>internal-release</id>
+            <activation>
+                <activeByDefault>false</activeByDefault>
+            </activation>
+            <distributionManagement>
+                <repository>
+                    <id>maven-arenadata-release</id>
+                    <name>Arenadata artifactory releases</name>
+                    <url>https://rt.adsw.io/artifactory/maven-arenadata-release</url>
+                </repository>
+                <snapshotRepository>
+                    <id>maven-arenadata-snapshot</id>
+                    <name>Arenadata artifactory snapshots</name>
+                    <url>https://rt.adsw.io/artifactory/maven-arenadata-snapshot</url>
+                </snapshotRepository>
+            </distributionManagement>
+        </profile>
     </profiles>
 
     <dependencies>
